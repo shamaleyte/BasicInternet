@@ -21,11 +21,12 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class MainActivity extends AppCompatActivity implements RelayInformation
+public class MainActivity extends AppCompatActivity implements HypeSdkInterface.RelayInformation
 {
     private HypePubSub hps = HypePubSub.getInstance();
     private Network network = Network.getInstance();
-    private HypeSdkInterface hypeSdk = HypeSdkInterface.getInstance();
+    //private HypeSdkInterface hypeSdk = HypeSdkInterface.getInstance();
+    private HypeSdkInterface hypeSdk;
 
     private UIData uiData = UIData.getInstance();
 
@@ -61,6 +62,9 @@ public class MainActivity extends AppCompatActivity implements RelayInformation
         initButtonsFromResourceIDs();
         setButtonListeners();
 
+
+        newsView = findViewById(R.id.news_collector);
+        hypeSdk = new HypeSdkInterface(this);
 
         if(uiData.isToInitializeSdk) {
             initHypeSdk();
@@ -126,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements RelayInformation
         checkHypeDevicesButton = findViewById(R.id.activity_main_check_hype_devices_button);
         checkOwnSubscriptionsButton = findViewById(R.id.activity_main_check_own_subscriptions_button);
         checkManagedServicesButton = findViewById(R.id.activity_main_check_managed_services_button);
-        newsView = findViewById(R.id.news_collector);
+
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -353,10 +357,16 @@ public class MainActivity extends AppCompatActivity implements RelayInformation
     }
 
     @Override
-    public void updateNewsCollector(String newsString) {
-        newsView.setText(newsString);
-    }
+    public void onHypeDeviceFound(String someExampleData) {
+        Log.i(TAG, String.format("%s MainActivity got the broadcast! as : %s",
+                HYPE_PUB_SUB_LOG_PREFIX, someExampleData));
+        updateText();
 
+
+    }
+    private void updateText(){
+        ((TextView)findViewById(R.id.news_collector)).setText("xxxxxx");
+    }
     private interface IServiceAction {
         void action(String userInput);
     }

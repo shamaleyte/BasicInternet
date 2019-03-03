@@ -1,10 +1,8 @@
 package com.example.basicinternet;
 
-import android.app.Activity;
+
 import android.content.Context;
 import android.util.Log;
-import android.widget.TextView;
-
 import com.hypelabs.hype.Error;
 import com.hypelabs.hype.Hype;
 import com.hypelabs.hype.Instance;
@@ -22,8 +20,8 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
     boolean hasHypeStopped = false;
     String hypeFailedMsg = "";
     String hypeStoppedMsg = "";
-    private static RelayInformation relayInformation = null;
 
+    private static RelayInformation relayInformation;
 
     // Private
     private static final String TAG = HypeSdkInterface.class.getName();
@@ -31,12 +29,12 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
     final private HypePubSub hps = HypePubSub.getInstance();
     final private Network network = Network.getInstance();
 
-    private static HypeSdkInterface hypeSdkInterface = new HypeSdkInterface();
+    private static HypeSdkInterface hypeSdkInterface = new HypeSdkInterface(relayInformation);
     public static HypeSdkInterface getInstance() { return hypeSdkInterface; }
 
 
-    public HypeSdkInterface(){
-
+    public HypeSdkInterface(RelayInformation listener){
+        relayInformation = listener;
     }
 
     protected void requestHypeToStart(Context context) {
@@ -68,8 +66,6 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
                 HYPE_SDK_INTERFACE_LOG_PREFIX,
                 HpsGenericUtils.getLogStrFromInstance(Hype.getHostInstance())));
 
-        if(relayInformation != null)
-            relayInformation.updateNewsCollector("HYPE STARTED!");
 
         hasHypeStarted = true;
         network.setOwnClient(Hype.getHostInstance());
@@ -138,12 +134,6 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
             Log.i(TAG, String.format("%s Hype SDK resolved instance found: %s",
                     HYPE_SDK_INTERFACE_LOG_PREFIX, instanceLogIdStr));
 
-
-
-
-            if(relayInformation != null)
-                relayInformation.updateNewsCollector(instanceLogIdStr);
-
             // Add the instance found in a separate thread to release the lock of the
             // Hype instance object preventing possible deadlock
             final Instance instanceFound = var1;
@@ -155,6 +145,7 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
                 }
             });
             t.start();
+            relayInformation.onHypeDeviceFound(instanceLogIdStr);
         }
     }
 
@@ -306,5 +297,10 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
         if (clientsListActivity != null) {
             clientsListActivity.updateUI();
         }
+    }
+
+
+    public interface RelayInformation {
+        void onHypeDeviceFound(String someExampleData);
     }
 }
