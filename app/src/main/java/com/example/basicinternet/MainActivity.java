@@ -4,15 +4,17 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
+
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -21,20 +23,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class MainActivity extends AppCompatActivity implements HypeSdkInterface.RelayInformation
+public class MainActivity extends AppCompatActivity
 {
     private HypePubSub hps = HypePubSub.getInstance();
     private Network network = Network.getInstance();
-    //private HypeSdkInterface hypeSdk = HypeSdkInterface.getInstance();
-    private HypeSdkInterface hypeSdk;
+    private HypeSdkInterface hypeSdk = HypeSdkInterface.getInstance();
+    //private HypeSdkInterface hypeSdk;
 
     private UIData uiData = UIData.getInstance();
 
     /* Serhat's addition */
     final private ClientsList activityClientsList = new ClientsList();
     private ClientsAdapter activityClientsAdapter;
-    private TextView newsView;
-
     private Button subscribeButton;
     private Button unsubscribeButton;
     private Button publishButton;
@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
     private Button checkHypeDevicesButton;
     private Button checkOwnSubscriptionsButton;
     private Button checkManagedServicesButton;
+    private TextView newsCollector;
     private static final String TAG =  HypePubSub.class.getName();
     private static final String HYPE_PUB_SUB_LOG_PREFIX = HpsConstants.LOG_PREFIX + "<shamaleyte> ";
     private static MainActivity instance; // Way of accessing the application context from other classes
@@ -54,6 +55,17 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
         return instance;
     }
 
+    IntentFilter mIntentFilter;
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle b = intent.getExtras();
+            String res = b.getString("res");
+            newsCollector.setText(res);
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,9 +74,11 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
         initButtonsFromResourceIDs();
         setButtonListeners();
 
+        newsCollector = findViewById(R.id.news_collector);
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction("Published_Message");
+        registerReceiver(mIntentReceiver, mIntentFilter);
 
-        newsView = findViewById(R.id.news_collector);
-        hypeSdk = new HypeSdkInterface(this);
 
         if(uiData.isToInitializeSdk) {
             initHypeSdk();
@@ -72,6 +86,14 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
         }
 
         getHypeDevicesAround();
+    }
+
+
+
+    public static void updateTextField(String newText) {
+        Log.i(TAG, String.format("%s updateTextfield. Next %s",
+                HYPE_PUB_SUB_LOG_PREFIX, newText));
+
     }
 
     private void initHypeSdk() {
@@ -130,7 +152,6 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
         checkHypeDevicesButton = findViewById(R.id.activity_main_check_hype_devices_button);
         checkOwnSubscriptionsButton = findViewById(R.id.activity_main_check_own_subscriptions_button);
         checkManagedServicesButton = findViewById(R.id.activity_main_check_managed_services_button);
-
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -200,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
             }
         });
     }
+
 
     private void setListenerCheckOwnIdButton() {
         checkOwnIdButton.setOnClickListener(new View.OnClickListener() {
@@ -356,17 +378,17 @@ public class MainActivity extends AppCompatActivity implements HypeSdkInterface.
         });
     }
 
-    @Override
-    public void onHypeDeviceFound(String someExampleData) {
-        Log.i(TAG, String.format("%s MainActivity got the broadcast! as : %s",
-                HYPE_PUB_SUB_LOG_PREFIX, someExampleData));
-        updateText();
 
 
-    }
-    private void updateText(){
-        ((TextView)findViewById(R.id.news_collector)).setText("xxxxxx");
-    }
+
+
+
+
+
+
+
+
+
     private interface IServiceAction {
         void action(String userInput);
     }

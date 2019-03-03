@@ -145,7 +145,6 @@ public class HypeSdkInterface implements NetworkObserver, StateObserver, Message
                 }
             });
             t.start();
-            relayInformation.onHypeDeviceFound(instanceLogIdStr);
         }
     }
 

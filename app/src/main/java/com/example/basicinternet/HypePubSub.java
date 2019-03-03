@@ -1,15 +1,22 @@
 package com.example.basicinternet;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.hypelabs.hype.Instance;
 
+import org.w3c.dom.Text;
+
+import java.security.DomainCombiner;
 import java.util.ArrayList;
 import java.util.ListIterator;
 
@@ -25,6 +32,7 @@ public class HypePubSub
     final private Network network = Network.getInstance();
     private int notificationID = 1;
 
+    CustomListener mCustomListener;
     final private static HypePubSub hps = new HypePubSub(); // Early loading to avoid thread-safety issues
     public static HypePubSub getInstance()
     {
@@ -37,6 +45,13 @@ public class HypePubSub
         this.managedServices = new ServiceManagersList();
     }
 
+
+    public interface CustomListener {
+        public void onInterestingEvent();
+    }
+    public void setcustomListener(CustomListener listener) {
+        mCustomListener = listener;
+    }
     //////////////////////////////////////////////////////////////////////////////
     // Request Issuing
     //////////////////////////////////////////////////////////////////////////////
@@ -175,7 +190,6 @@ public class HypePubSub
 
     void processInfoMsg(byte serviceKey[], String msg) {
         Subscription subscription = ownSubscriptions.findSubscriptionWithServiceKey(serviceKey);
-
         if(subscription == null) {
             Log.i(TAG, String.format("%s Info received from the unsubscribed service 0x%s: %s",
                     HYPE_PUB_SUB_LOG_PREFIX, BinaryUtils.byteArrayToHexString(serviceKey),
@@ -189,6 +203,14 @@ public class HypePubSub
         updateMessagesUI();
         String notificationText = subscription.serviceName + ": " + msg;
         displayNotification(MainActivity.getContext(), notificationText, notificationID);
+
+        /* Option 2 Broadcasting */
+        Intent broadcastIntent = new Intent();
+        Bundle bb = new Bundle();
+        bb.putString("res", msg);
+        broadcastIntent.putExtras(bb);
+        broadcastIntent.setAction("Published_Message");
+        MainActivity.getContext().sendBroadcast(broadcastIntent);
 
         Log.i(TAG, String.format("%s Info received from the subscribed service '%s': %s",
                 HYPE_PUB_SUB_LOG_PREFIX, subscription.serviceName, msg));
@@ -282,6 +304,7 @@ public class HypePubSub
     }
 
     private void displayNotification(Context context, String content, int id) {
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, HpsConstants.NOTIFICATIONS_CHANNEL);
         builder.setContentTitle(HpsConstants.NOTIFICATIONS_TITLE);
         builder.setContentText(content);
@@ -310,4 +333,7 @@ public class HypePubSub
         Log.i(TAG, String.format("%s Issuing %s for service '%s' to HOST instance",
                 HYPE_PUB_SUB_LOG_PREFIX, msgType, serviceName));
     }
+
+
+
 }
