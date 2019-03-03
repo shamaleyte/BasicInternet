@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BasicInternet</string>
+    <string name="app_title">BasicInternet</string>
+    <string name="default_news_text">BasicInternet provides you with the latest news without any internet connection</string>
+</resources>
