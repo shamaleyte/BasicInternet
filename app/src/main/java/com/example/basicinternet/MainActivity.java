@@ -9,18 +9,32 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.HeaderViewListAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity
@@ -28,11 +42,21 @@ public class MainActivity extends AppCompatActivity
     private HypePubSub hps = HypePubSub.getInstance();
     private Network network = Network.getInstance();
     private HypeSdkInterface hypeSdk = HypeSdkInterface.getInstance();
-    //private HypeSdkInterface hypeSdk;
-
     private UIData uiData = UIData.getInstance();
 
     /* Serhat's addition */
+    private SharedPreferences prefs;
+    //private SharedPreferences subscriptions;
+    private List<String> selectedNews = new ArrayList<>();
+    String[] news = new String[] {"BasicInternet Messages"};
+    private List<String> news_list = new ArrayList<>(Arrays.asList(news));;
+    private List<String> subscribed_list = new ArrayList<>();
+
+    ArrayAdapter<String> adapter;
+    private ListView mListView;
+
+
+
     final private ClientsList activityClientsList = new ClientsList();
     private ClientsAdapter activityClientsAdapter;
     private Button subscribeButton;
@@ -42,7 +66,9 @@ public class MainActivity extends AppCompatActivity
     private Button checkHypeDevicesButton;
     private Button checkOwnSubscriptionsButton;
     private Button checkManagedServicesButton;
-    private TextView newsCollector;
+
+
+
     private static final String TAG =  HypePubSub.class.getName();
     private static final String HYPE_PUB_SUB_LOG_PREFIX = HpsConstants.LOG_PREFIX + "<shamaleyte> ";
     private static MainActivity instance; // Way of accessing the application context from other classes
@@ -61,9 +87,21 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Bundle b = intent.getExtras();
             String res = b.getString("res");
-            newsCollector.setText(res);
+
+            selectedNews.add(res);
+            news_list.add(res);
+            adapter.notifyDataSetChanged();
+            setListViewHeightBasedOnChildren(getListView());
         }
     };
+
+
+    protected ListView getListView() {
+        if (mListView == null) {
+            mListView = findViewById(R.id.newsCollector);
+        }
+        return mListView;
+    }
 
 
     @Override
@@ -74,7 +112,26 @@ public class MainActivity extends AppCompatActivity
         initButtonsFromResourceIDs();
         setButtonListeners();
 
-        newsCollector = findViewById(R.id.news_collector);
+        if(savedInstanceState != null){
+          /* If saved work exists, then change UI accordingly + Subscribe to prev. channels etc. */
+        }
+        else{
+            /* If not saved , then go with the default settings */
+        }
+
+
+
+        if (mListView == null) {
+            mListView = findViewById(R.id.newsCollector);
+        }
+
+        // load tasks from preference
+        prefs = getSharedPreferences("mynews", Context.MODE_PRIVATE);
+
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, news_list);
+        getListView().setAdapter(adapter);
+
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction("Published_Message");
         registerReceiver(mIntentReceiver, mIntentFilter);
@@ -85,16 +142,142 @@ public class MainActivity extends AppCompatActivity
             uiData.isToInitializeSdk = false;
         }
 
-        getHypeDevicesAround();
+        //subscriptions = getSharedPreferences("mysubs", Context.MODE_PRIVATE);
+
+
+
+        setListViewHeightBasedOnChildren(getListView());
+
+    }
+
+    @Override
+    protected void onStop()
+    {
+        unregisterReceiver(mIntentReceiver);
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadNewsFromPrefs();
+        //loadSubscriptionsFromPrefs();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        storeNewsToPrefs();
+        //storeSubsToPrefs();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        /* Save your work here */
+    }
+
+    private void loadNewsFromPrefs() {
+    if (prefs == null) {
+        return;
     }
 
 
+    // read in json array from prefs to fill list
+    selectedNews = new ArrayList<>();
+    String jsonArrayString = prefs.getString("mynews", "");
+    if (!TextUtils.isEmpty(jsonArrayString)) {
+        try {
+            JSONArray jsonArray = new JSONArray(jsonArrayString);
+            if (jsonArray.length() > 0) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    String next= jsonArray.getString(i);
+                    selectedNews.add(next);
+                    news_list.add(next);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void updateTextField(String newText) {
-        Log.i(TAG, String.format("%s updateTextfield. Next %s",
-                HYPE_PUB_SUB_LOG_PREFIX, newText));
+}
+    protected void storeNewsToPrefs() {
+        if (prefs == null) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // store list as jsonarray
+        JSONArray jsonArray = new JSONArray();
+        for (String z : selectedNews) {
+            jsonArray.put((String) z);
+        }
+        editor.putString("mynews", jsonArray.toString());
+        editor.commit();
+    }
+/*
+    private void loadSubscriptionsFromPrefs() {
+        if (subscriptions == null) {
+            return;
+        }
+        // read in json array from prefs to fill list
+        subscribed_list = new ArrayList<>();
+        String jsonArrayString = prefs.getString("mysubs", "");
+        if (!TextUtils.isEmpty(jsonArrayString)) {
+            try {
+                JSONArray jsonArray = new JSONArray(jsonArrayString);
+                if (jsonArray.length() > 0) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        String next= jsonArray.getString(i);
+                        subscribed_list.add(next);
+                        //subscribeUser(next);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
+    protected void storeSubsToPrefs() {
+        if (subscriptions == null) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // store list as jsonarray
+        JSONArray jsonArray = new JSONArray();
+        for (String z : subscribed_list) {
+            jsonArray.put((String) z);
+        }
+        editor.putString("mysubs", jsonArray.toString());
+        editor.commit();
+    }
+
+    */
+
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null) {
+            // pre-condition
+            return;
+        }
+
+        int totalHeight = 0;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            View listItem = listAdapter.getView(i, null, listView);
+            listItem.measure(0, 0);
+            totalHeight += listItem.getMeasuredHeight();
+        }
+
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
+    }
+
 
     private void initHypeSdk() {
         requestHypeRequiredPermissions(this);
@@ -251,22 +434,6 @@ public class MainActivity extends AppCompatActivity
         return activityClientsAdapter;
     }
 
-    // List the Hype Devices in range
-    private void getHypeDevicesAround(){
-
-        ClientsAdapter clientAdapter = getClientsAdapter();
-        clientAdapter.clear();
-
-        // Print all of the found ones
-        for(int i=0; i<network.networkClients.size();i++) {
-            clientAdapter.add(network.networkClients.get(i));
-            Log.i(TAG, String.format("%s setClientsAdapterFromNetworkClients. Next %s",
-                    HYPE_PUB_SUB_LOG_PREFIX, network.networkClients.get(i)));
-        }
-        Log.i(TAG, String.format("%s clientsAdapter fetched!!! : %d.",
-                HYPE_PUB_SUB_LOG_PREFIX, network.networkClients.size()));
-
-    }
 
     private void setListenerCheckHypeDevicesButton() {
         final Intent intent = new Intent(this, ClientsListActivity.class);
@@ -409,6 +576,7 @@ public class MainActivity extends AppCompatActivity
 
             boolean wasSubscribed = hps.issueSubscribeReq(serviceName);
             if (wasSubscribed) {
+                subscribed_list.add(serviceName);
                 uiData.addSubscribedService(MainActivity.this, serviceName);
                 uiData.removeUnsubscribedService(MainActivity.this, serviceName);
             }
@@ -430,7 +598,9 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
+    public void subscribeUser(String userInput) {
+      // NOT READY
+    }
     private class publishServiceAction implements IServiceAction {
         @Override
         public void action(String userInput) {

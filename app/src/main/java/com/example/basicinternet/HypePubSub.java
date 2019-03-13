@@ -320,7 +320,7 @@ public class HypePubSub
             NotificationChannel mChannel = new NotificationChannel(HpsConstants.NOTIFICATIONS_CHANNEL, HpsConstants.NOTIFICATIONS_CHANNEL, NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(mChannel);
         }
-        notificationManager.notify(id, builder.build());
+        //notificationManager.notify(id, builder.build());
 
         notificationID++;
     }
