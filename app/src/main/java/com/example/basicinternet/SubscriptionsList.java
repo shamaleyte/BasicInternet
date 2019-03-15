@@ -1,6 +1,10 @@
 package com.example.basicinternet;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import org.json.JSONArray;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -14,12 +18,14 @@ public class SubscriptionsList
     final private LinkedList<Subscription> subscriptions = new LinkedList<>();
     private SubscriptionsAdapter subscriptionsAdapter = null;
 
+
     public synchronized boolean addSubscription(Subscription subscription) {
         if (containsSubscriptionWithServiceKey(subscription.serviceKey)) {
             return false;
         }
         return subscriptions.add(subscription);
     }
+
 
     public synchronized boolean removeSubscriptionWithServiceName(String serviceName) {
         byte serviceKey[] = HpsGenericUtils.stringHash(serviceName);

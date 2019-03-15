@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     //private SharedPreferences subscriptions;
     private List<String> selectedNews = new ArrayList<>();
     String[] news = new String[] {"BasicInternet Messages"};
-    private List<String> news_list = new ArrayList<>(Arrays.asList(news));;
+    private List<String> news_list = new ArrayList<>(Arrays.asList(news));
     private List<String> subscribed_list = new ArrayList<>();
 
     ArrayAdapter<String> adapter;
@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity
 
             selectedNews.add(res);
             news_list.add(res);
+            if(adapter == null)
+                adapter = new ArrayAdapter<String>();
             adapter.notifyDataSetChanged();
             setListViewHeightBasedOnChildren(getListView());
         }
@@ -126,7 +128,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         // load tasks from preference
-        prefs = getSharedPreferences("mynews", Context.MODE_PRIVATE);
+        Context context = MainActivity.getContext();
+        prefs = context.getSharedPreferences("mynews", Context.MODE_PRIVATE);
 
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, news_list);
@@ -153,7 +156,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop()
     {
-        unregisterReceiver(mIntentReceiver);
+        try {
+            unregisterReceiver(mIntentReceiver);
+        }catch (Exception e){
+            System.out.println("<<<<exception>>>>");
+        }
         super.onStop();
     }
 
@@ -215,6 +222,18 @@ public class MainActivity extends AppCompatActivity
             jsonArray.put((String) z);
         }
         editor.putString("mynews", jsonArray.toString());
+        editor.commit();
+    }
+    protected void storeSubsToPrefs() {
+        if (prefs == null) {
+            return;
+        }
+        SharedPreferences.Editor editor = prefs.edit();
+        JSONArray jsonArray = new JSONArray();
+        for (String z : subscribed_list) {
+            jsonArray.put((String) z);
+        }
+        editor.putString("mySubs", jsonArray.toString());
         editor.commit();
     }
 /*
@@ -577,6 +596,7 @@ public class MainActivity extends AppCompatActivity
             boolean wasSubscribed = hps.issueSubscribeReq(serviceName);
             if (wasSubscribed) {
                 subscribed_list.add(serviceName);
+                //storeSubsToPrefs();
                 uiData.addSubscribedService(MainActivity.this, serviceName);
                 uiData.removeUnsubscribedService(MainActivity.this, serviceName);
             }
