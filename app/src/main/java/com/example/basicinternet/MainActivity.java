@@ -90,9 +90,8 @@ public class MainActivity extends AppCompatActivity
 
             selectedNews.add(res);
             news_list.add(res);
-            if(adapter == null)
-                adapter = new ArrayAdapter<String>();
-            adapter.notifyDataSetChanged();
+            if(adapter != null)
+                 adapter.notifyDataSetChanged();
             setListViewHeightBasedOnChildren(getListView());
         }
     };
@@ -175,7 +174,7 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         storeNewsToPrefs();
-        //storeSubsToPrefs();
+        storeSubsToPrefs();
     }
 
     @Override
@@ -231,7 +230,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor editor = prefs.edit();
         JSONArray jsonArray = new JSONArray();
         for (String z : subscribed_list) {
-            jsonArray.put((String) z);
+            jsonArray.put(z);
         }
         editor.putString("mySubs", jsonArray.toString());
         editor.commit();
@@ -596,7 +595,6 @@ public class MainActivity extends AppCompatActivity
             boolean wasSubscribed = hps.issueSubscribeReq(serviceName);
             if (wasSubscribed) {
                 subscribed_list.add(serviceName);
-                //storeSubsToPrefs();
                 uiData.addSubscribedService(MainActivity.this, serviceName);
                 uiData.removeUnsubscribedService(MainActivity.this, serviceName);
             }

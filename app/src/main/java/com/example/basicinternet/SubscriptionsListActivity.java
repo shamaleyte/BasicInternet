@@ -49,7 +49,7 @@ public class SubscriptionsListActivity extends AppCompatActivity
 
         // Get ListView object from xml
         HypePubSub hps = HypePubSub.getInstance();
-        //readSubsFromSharedPreferences(hps);
+        readSubsFromSharedPreferences(hps);
         subscriptionsListView = findViewById(R.id.activity_subscriptions_list_view);
         subscriptionsListView.setAdapter(hps.ownSubscriptions.getSubscriptionsAdapter(SubscriptionsListActivity.this));
 
