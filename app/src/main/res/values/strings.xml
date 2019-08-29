@@ -4,4 +4,6 @@
     <string name="default_news_text">BasicInternet provides you with the latest news without any internet connection</string>
     <string name="collects_the_news_messages">Collects the news messages</string>
     <string name="publish_in_service">Publish in Service</string>
+    <string name="control_panel_btn">COntrol Panel</string>
+    <string name="title_activity_control_panel">ControlPanelActivity</string>
 </resources>

@@ -21,6 +21,24 @@
         android:src="@drawable/basicinternet"
         />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/activity_main_controlPanel_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#17394d"
+            android:text="@string/control_panel_btn"
+            android:textColor="#ffffff"
+            tools:layout_editor_absoluteX="224dp"
+            tools:layout_editor_absoluteY="242dp" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,125 +66,6 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         android:contentDescription="@string/collects_the_news_messages"/>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_subscribe_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#17394d"
-            android:text="Subscribe Service"
-            android:textColor="#ffffff"
-            tools:layout_editor_absoluteX="224dp"
-            tools:layout_editor_absoluteY="55dp" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_check_own_id_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="#17394d"
-            android:text="Check Own ID"
-            android:textColor="#ffffff" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_check_hype_devices_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="#17394d"
-            android:text="Check Hype Devices"
-            android:textColor="#ffffff" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="15dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_check_own_subscriptions_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="#17394d"
-            android:text="Check Subscriptions"
-            android:textColor="#ffffff" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_unsubscribe_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#17394d"
-            android:text="Unsubscribe Service"
-            android:textColor="#ffffff"
-            tools:layout_editor_absoluteX="224dp"
-            tools:layout_editor_absoluteY="124dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="15dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/activity_main_check_managed_services_button"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true"
-            android:background="#17394d"
-            android:text="Check Managed Services"
-            android:textColor="#ffffff" />
-
-    </LinearLayout>
 
 
 

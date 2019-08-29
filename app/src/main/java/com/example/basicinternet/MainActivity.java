@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     private Button checkHypeDevicesButton;
     private Button checkOwnSubscriptionsButton;
     private Button checkManagedServicesButton;
+    private Button controlPanelButton;
 
 
 
@@ -336,23 +337,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setButtonListeners() {
-        setListenerSubscribeButton();
-        setListenerUnsubscribeButton();
+//        setListenerSubscribeButton();
+//        setListenerUnsubscribeButton();
         setListenerPublishButton();
-        setListenerCheckOwnIdButton();
-        setListenerCheckHypeDevicesButton();
-        setListenerCheckOwnSubscriptionsButton();
-        setListenerCheckManagedServicesButton();
+//        setListenerCheckOwnIdButton();
+//        setListenerCheckHypeDevicesButton();
+//        setListenerCheckOwnSubscriptionsButton();
+//        setListenerCheckManagedServicesButton();
+        setListenerControlPanelButton();
     }
 
     private void initButtonsFromResourceIDs() {
-        subscribeButton = findViewById(R.id.activity_main_subscribe_button);
-        unsubscribeButton = findViewById(R.id.activity_main_unsubscribe_button);
+//        subscribeButton = findViewById(R.id.activity_main_subscribe_button);
+//        unsubscribeButton = findViewById(R.id.activity_main_unsubscribe_button);
         publishButton = findViewById(R.id.activity_main_publish_button);
-        checkOwnIdButton = findViewById(R.id.activity_main_check_own_id_button);
-        checkHypeDevicesButton = findViewById(R.id.activity_main_check_hype_devices_button);
-        checkOwnSubscriptionsButton = findViewById(R.id.activity_main_check_own_subscriptions_button);
-        checkManagedServicesButton = findViewById(R.id.activity_main_check_managed_services_button);
+//        checkOwnIdButton = findViewById(R.id.activity_main_check_own_id_button);
+//        checkHypeDevicesButton = findViewById(R.id.activity_main_check_hype_devices_button);
+//        checkOwnSubscriptionsButton = findViewById(R.id.activity_main_check_own_subscriptions_button);
+//        checkManagedServicesButton = findViewById(R.id.activity_main_check_managed_services_button);
+        controlPanelButton = findViewById(R.id.activity_main_controlPanel_button);
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -498,6 +501,24 @@ public class MainActivity extends AppCompatActivity
         final Intent intent = new Intent(this, ServiceManagersListActivity.class);
 
         checkManagedServicesButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View arg0)
+            {
+                if( !isHypeSdkReady()) {
+                    showHypeNotReadyDialog();
+                    return;
+                }
+                MainActivity.this.
+                        startActivity(intent);
+            }
+        });
+    }
+
+    private void setListenerControlPanelButton(){
+        final Intent intent = new Intent(this, ControlPanelActivity.class);
+
+        controlPanelButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View arg0)
